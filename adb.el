@@ -46,6 +46,7 @@
 
 (defun adb-status (&optional directory)
   (interactive "D")
+  (setq directory (file-name-as-directory directory))
   (let* ((dirname (file-name-nondirectory (directory-file-name directory)))
          (buffer-name (format "*adb %s*" dirname))
          (buffer (get-buffer-create buffer-name)))
