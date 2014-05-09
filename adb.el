@@ -449,6 +449,14 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
        (list "-p" (format "%d" (adb-lengthspec-vectors (cons (adb-qid-start qid) :seconds))))
      (list "-e"))))
 
+(defvar adb-query-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "SPC") 'adb-query-play-match)
+    map))
+
+(define-derived-mode adb-query-mode special-mode "adbq"
+  "Major mode for audioDB query results.\\<adb-query-mode-map>")
+
 (defun adb-do-query ()
   (interactive)
   (let* ((db (adb-current-db))
@@ -457,6 +465,8 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
          (qid-args (adb-qid-args qid))
          (adb-db-buffer (current-buffer)))
     (with-current-buffer (get-buffer-create "*adb query*")
+      (adb-query-mode)
+      (read-only-mode -1)
       (set (make-local-variable 'adb-buffer) adb-db-buffer)
       (add-hook (make-local-variable 'post-command-hook) 'adb-query-post-command-hook)
       (goto-char (point-max))
@@ -473,7 +483,8 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
         (let ((exec-path (cons "/home/csr21/goldsmiths/research/src/git/audioDB" exec-path)))
           (apply 'start-process "audioDB" (current-buffer) "audioDB"
                  "-d" dbfile "-Q" "sequence" "-n" "1" qid-args))
-        (add-text-properties start (point-max) `(adb-db ,db abd-qid ,qid))))))
+        (add-text-properties start (point-max) `(adb-db ,db abd-qid ,qid)))
+      (read-only-mode +1))))
 
 (defun adb-query-post-command-hook ()
   (let ((line (thing-at-point 'line))
@@ -486,6 +497,7 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
           (adb-update-metadata-window word))))))
 
 (defun adb-query-play-match ()
+  (interactive)
   (let ((line (thing-at-point 'line))
         (word (thing-at-point 'word)))
     (when (= (length word) 32)
