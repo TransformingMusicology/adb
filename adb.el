@@ -519,15 +519,20 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
             (split-line (split-string line " ")))
         (if (adb-player-process)
             (message "currently playing")
-          (start-process "adb player" (adb-player-buffer) "play" "-M" "-q"
-                         (format "|sox %s -p trim %d %d channels 1"
-                                 (adb-24ify (adb-qid-content qid) "content" "content")
-                                 (string-to-number (elt split-line 2))
-                                 (adb-lengthspec-seconds (adb-qid-length qid)))
-                         (format "|sox %s -p trim %d %d channels 1"
-                                 (adb-24ify word "content" "content")
-                                 (string-to-number (elt split-line 3))
-                                 (adb-lengthspec-seconds (adb-qid-length qid)))))))))
+          (let ((adb-current-db (get-text-property (point) 'adb-db)))
+            (start-process "adb player" (adb-player-buffer) "play" "-M" "-q"
+                           (format "|sox %s -p trim %d %d channels 1"
+                                   (adb-24ify (adb-qid-content qid) "content" "content")
+                                   (adb-lengthspec-seconds
+                                    (cons (string-to-number (elt split-line 2))
+                                          :vectors))
+                                   (adb-lengthspec-seconds (adb-qid-length qid)))
+                           (format "|sox %s -p trim %d %d channels 1"
+                                   (adb-24ify word "content" "content")
+                                   (adb-lengthspec-seconds
+                                    (cons (string-to-number (elt split-line 3))
+                                          :vectors))
+                                   (adb-lengthspec-seconds (adb-qid-length qid))))))))))
 
 (defun adb-go-to-content (content)
   (interactive (list (completing-read "Content: " adb-all-content)))
