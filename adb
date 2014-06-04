@@ -65,7 +65,7 @@ add() {
     ln -sf "${file}" content/$(directorify $stream5sum)/${id}
     # FIXME: most recently added wins
     ln -sf "${file}" content/$(directorify $stream5sum)/content
-    ln -sf content/$(directorify $stream5sum)/${id} id/$(directorify $id)/content
+    ln -sf ../../../../content/$(directorify $stream5sum)/${id} id/$(directorify $id)/content
   done
 }
 
