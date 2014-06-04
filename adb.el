@@ -531,3 +531,5 @@ SELECT ?o WHERE { ?s vamp:step_size ?o }")
     (if newpos
         (goto-char newpos)
       (error "content %s not found" content))))
+
+(provide 'adb)
